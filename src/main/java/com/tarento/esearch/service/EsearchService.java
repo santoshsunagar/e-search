@@ -17,7 +17,7 @@ public interface EsearchService {
 	
 	public List<Map<String,Object>> getAllDocuments(String index);
 	
-	public SearchResponse getAvailableDocuments(String index);
+	public SearchResponse getAvailableDocuments(String index) throws com.tarento.esearch.exception.NoNodeAvailableException ;
 	
 	
 	

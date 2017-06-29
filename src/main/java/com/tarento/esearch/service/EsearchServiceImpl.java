@@ -10,6 +10,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -115,7 +116,7 @@ public class EsearchServiceImpl implements EsearchService {
 		return esData;
 	}
 	
-	public SearchResponse getAvailableDocuments(String index) {
+	public SearchResponse getAvailableDocuments(String index) throws com.tarento.esearch.exception.NoNodeAvailableException {
 		TransportClient transportClient = null;
 		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
@@ -137,6 +138,8 @@ public class EsearchServiceImpl implements EsearchService {
 	            }
 	            i++;
 	        }
+		} catch (NoNodeAvailableException expObj) {
+			throw new com.tarento.esearch.exception.NoNodeAvailableException("NoNodeAvailableException"); 
 		} catch (Exception expObj) {
 			expObj.printStackTrace();
 		} finally {
