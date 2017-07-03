@@ -17,13 +17,17 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tarento.esearch.constants.EsearchConstants;
 
 public class EsearchServiceImpl implements EsearchService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(EsearchServiceImpl.class);
 	
 	public void createDocument(String index, String type, String searchId, String requestData){
+		LOGGER.info("Start: createDocument service");
 		TransportClient transportClient = null;
 		try {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
@@ -32,13 +36,16 @@ public class EsearchServiceImpl implements EsearchService {
 			transportClient.prepareIndex(index, type, searchId)
             .setSource(requestData).execute().actionGet();
 		} catch (Exception expObj) {
+			LOGGER.error("Error in creating Document", expObj);
 			expObj.printStackTrace();
 		}  finally {
             transportClient.close();
         }
+		LOGGER.debug("End: createDocument service");
 	}
 	
 	public void updateDocument(String index, String type, String searchId, String field, String newValue, String requestData) {
+		LOGGER.debug("Start: updateDocument service");
 		TransportClient transportClient = null;
 		try {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
@@ -48,26 +55,32 @@ public class EsearchServiceImpl implements EsearchService {
 	        UpdateRequest updateRequest = new UpdateRequest(index, type, searchId).doc(requestData);
 	        transportClient.update(updateRequest).get();
 		} catch (Exception expObj) {
+			LOGGER.error("Error in updating Document", expObj);
 			expObj.printStackTrace();
 		} finally {
             transportClient.close();
         }
+		LOGGER.info("End: updateDocument service");
 	}
 	
 	public void removeDocument(String index, String type, String searchId) {
+		LOGGER.info("Start: removeDocument service");
 		TransportClient transportClient = null;
 		try {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
 			transportClient = new PreBuiltTransportClient(clusterSettings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(EsearchConstants.CLUSTER_NODE_HOST), EsearchConstants.CLUSTER_NODE_PORT));
 			DeleteResponse response = transportClient.prepareDelete(index, type, searchId).execute().actionGet();
 		} catch (Exception expObj) {
+			LOGGER.error("Error in removing Document", expObj);
 			expObj.printStackTrace();
 		} finally {
             transportClient.close();
         }
+		LOGGER.info("End: removeDocument service");
 	}
 	
 	public Map<String, Object> getDocument(String index, String type, String searchId) {
+		LOGGER.info("Start: getDocument service");
 		TransportClient transportClient = null;
 		Map<String, Object> source = null;
 		try {
@@ -78,14 +91,17 @@ public class EsearchServiceImpl implements EsearchService {
 			source= new HashMap<String, Object>();
 			source = getResponse.getSource();
 		} catch (Exception expObj) {
+			LOGGER.error("Error in get Document", expObj);
 			expObj.printStackTrace();
 		} finally {
             transportClient.close();
         }
+		LOGGER.info("End: getDocument service");
 		return source;
 	}
 
 	public List<Map<String,Object>> getAllDocuments(String index) {
+		LOGGER.info("Start: getAllDocuments service");
 		TransportClient transportClient = null;
 		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
@@ -102,21 +118,23 @@ public class EsearchServiceImpl implements EsearchService {
 	                       .setFrom(i * scrollSize)
 	                    .execute()
 	                    .actionGet();
-	            System.out.println("response: "+response);
 	            for(SearchHit hit : response.getHits()){
 	                esData.add(hit.getSource());
 	            }
 	            i++;
 	        }
 		} catch (Exception expObj) {
+			LOGGER.error("Error in getAll Document", expObj);
 			expObj.printStackTrace();
 		} finally {
             transportClient.close();
         }
+		LOGGER.info("End: getAllDocuments service");
 		return esData;
 	}
 	
 	public SearchResponse getAvailableDocuments(String index) throws com.tarento.esearch.exception.NoNodeAvailableException {
+		LOGGER.info("Start: getAvailableDocuments service");
 		TransportClient transportClient = null;
 		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
@@ -145,6 +163,7 @@ public class EsearchServiceImpl implements EsearchService {
 		} finally {
             transportClient.close();
         }
+		LOGGER.info("End: getAvailableDocuments service");
 		return response;
 	}
 	
