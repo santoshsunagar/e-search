@@ -16,6 +16,8 @@ public class EsearchConstants {
 	
 	public static Map<String, String> JSONTAGS;
 	
+	public static Integer RATING_COUNT = 6;
+	
 	public static Integer STATUS_200 = 200;
 	
 	public static Integer STATUS_201 = 201;

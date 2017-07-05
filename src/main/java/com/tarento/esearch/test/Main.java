@@ -7,10 +7,9 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.tarento.esearch.service.EsearchServiceImpl;
+import com.tarento.esearch.utils.EsearchUtils;
 
 
 public class Main {
@@ -53,8 +52,8 @@ public class Main {
 	public void testTraining() throws Exception {
 		System.out.println("testTraining demo");
 		EsearchServiceImpl esearchServiceImpl = new EsearchServiceImpl();
-		System.out.println("Result: "+esearchServiceImpl.getAvailableDocuments("feedback-d1"));
-		
+		//System.out.println("Result: "+esearchServiceImpl.getAvailableDocuments("feedback-d1"));
+		System.out.println("Result: "+EsearchUtils.prepareRatingJson(EsearchUtils.getAllDocuments(esearchServiceImpl.getAvailableDocuments("feedback-d1")),esearchServiceImpl.getAvailableDocuments("feedback-d1")));
 	}
 	
 	public static void main(String[] args) {

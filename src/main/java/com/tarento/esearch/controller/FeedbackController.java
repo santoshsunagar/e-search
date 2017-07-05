@@ -3,6 +3,7 @@ package com.tarento.esearch.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tarento.esearch.exception.NoNodeAvailableException;
 import com.tarento.esearch.model.ResponseStatus;
+import com.tarento.esearch.service.EsearchService;
 import com.tarento.esearch.service.EsearchServiceImpl;
 import com.tarento.esearch.utils.EsearchUtils;
 
@@ -28,11 +30,12 @@ public class FeedbackController {
 		LOGGER.info("Start: FeedbackController getOrder event");
 		JSONObject jsonObject = null;
 		List<Map<String,Object>> esData = null;
-		ResponseStatus status = null;
+		SearchRequestBuilder requestBuilder = null;
+		SearchResponse response = null;
 		try {
 			jsonObject = new JSONObject();
-			EsearchServiceImpl serviceImpl = new EsearchServiceImpl();
-			SearchResponse response = serviceImpl.getAvailableDocuments(index);
+			EsearchService serviceImpl = new EsearchServiceImpl();
+			response = serviceImpl.getAvailableDocuments(index);
 			esData = EsearchUtils.getAllDocuments(response);
 			jsonObject = EsearchUtils.prepareRatingJson(esData, response);
 			if(null == jsonObject) {
@@ -46,7 +49,7 @@ public class FeedbackController {
 			return jsonObject.toString();
 		} catch (Exception expObj) {
 			LOGGER.error("Error in FeedbackController getOrder : ", expObj);
-			status = new ResponseStatus(500, "Internal Error");
+			ResponseStatus status = new ResponseStatus(500, "Internal Error");
 			expObj.printStackTrace();
 		} finally {
 			// transportClient.close();

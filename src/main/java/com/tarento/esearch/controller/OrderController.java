@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tarento.esearch.model.ResponseStatus;
+import com.tarento.esearch.service.EsearchService;
 import com.tarento.esearch.service.EsearchServiceImpl;
 
 @RestController
@@ -21,7 +22,7 @@ public class OrderController {
 		Map<String, Object> map = null;
 		try {
 			map = new HashMap<String, Object>();
-			EsearchServiceImpl serviceImpl = new EsearchServiceImpl();
+			EsearchService serviceImpl = new EsearchServiceImpl();
 			map = serviceImpl.getDocument(index, type, searchId);
 			if(null ==  map || map.size() == 0) {
 				map = new HashMap<String, Object>();
@@ -42,7 +43,7 @@ public class OrderController {
 		ResponseStatus status = null;
 		try {
 			status = new ResponseStatus(201, "Created");
-			EsearchServiceImpl serviceImpl = new EsearchServiceImpl();
+			EsearchService serviceImpl = new EsearchServiceImpl();
 			serviceImpl.createDocument(index, type, searchId, requestData);
 		} catch (Exception expObj) {
 			status = new ResponseStatus(500, "Internal Error");
@@ -59,7 +60,7 @@ public class OrderController {
 		ResponseStatus status = null;
 		try {
 			status = new ResponseStatus(201, "Created");
-			EsearchServiceImpl serviceImpl = new EsearchServiceImpl();
+			EsearchService serviceImpl = new EsearchServiceImpl();
 			serviceImpl.updateDocument(index, type, searchId, null, null, requestData);
 		} catch (Exception expObj) {
 			status = new ResponseStatus(500, "Internal Error");
@@ -74,7 +75,7 @@ public class OrderController {
 	public ResponseStatus removeDocument(@PathVariable String index, @PathVariable String type, @PathVariable String searchId) {
 		ResponseStatus status = new ResponseStatus();
 		try {
-			EsearchServiceImpl serviceImpl = new EsearchServiceImpl();
+			EsearchService serviceImpl = new EsearchServiceImpl();
 			serviceImpl.removeDocument(index, type, searchId);
 			status.setStatus(201);
 			status.setStatusMessage("Removed");

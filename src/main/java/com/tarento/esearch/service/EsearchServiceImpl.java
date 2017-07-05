@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -138,24 +139,31 @@ public class EsearchServiceImpl implements EsearchService {
 		TransportClient transportClient = null;
 		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
+		SearchRequestBuilder requestBuilder = null;
 		int scrollSize = 1000;
 		int i = 0;
 		try {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
 			transportClient = new PreBuiltTransportClient(clusterSettings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(EsearchConstants.CLUSTER_NODE_HOST), EsearchConstants.CLUSTER_NODE_PORT));
-			esData = new ArrayList<Map<String,Object>>();
+			/*esData = new ArrayList<Map<String,Object>>();
 			while( response == null || response.getHits().hits().length != 0){
-	            response = transportClient.prepareSearch("feedback-d1")
+				response = transportClient.prepareSearch(index)
 	                       .setQuery(QueryBuilders.matchAllQuery())
 	                       .setSize(scrollSize)
 	                       .setFrom(i * scrollSize)
 	                    .execute()
 	                    .actionGet();
+	            //System.out.println("response:"+response);
 	            for(SearchHit hit : response.getHits()){
 	                esData.add(hit.getSource());
 	            }
 	            i++;
-	        }
+	        }*/
+			
+			//Added
+			esData = new ArrayList<Map<String,Object>>();
+			requestBuilder = transportClient.prepareSearch(index).setQuery(QueryBuilders.matchAllQuery());
+			response = requestBuilder.get();
 		} catch (NoNodeAvailableException expObj) {
 			throw new com.tarento.esearch.exception.NoNodeAvailableException("NoNodeAvailableException"); 
 		} catch (Exception expObj) {

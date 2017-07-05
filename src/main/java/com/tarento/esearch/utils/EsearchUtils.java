@@ -55,6 +55,7 @@ public class EsearchUtils {
 			//Prepare aggregations
 			array = new JSONArray();
 			Map<String, Integer> rateMap = new HashMap<String, Integer>();
+			
 			if(null != esData && esData.size() > 0) {
 				for (Map<String, Object> map : esData) {
 					item = new JSONObject();
@@ -63,42 +64,42 @@ public class EsearchUtils {
 					switch (rate) {
 					case 0:
 						if (!rateMap.containsKey("0")) {
-							rateMap.put("0", 0);
+							rateMap.put("0", 1);
 						} else {
 							rateMap.put("0", rateMap.get("0") + 1);
 						}
 						break;
 					case 1:
 						if (!rateMap.containsKey("1")) {
-							rateMap.put("1", 0);
+							rateMap.put("1", 1);
 						} else {
 							rateMap.put("1", rateMap.get("1") + 1);
 						}
 						break;
 					case 2:
 						if (!rateMap.containsKey("2")) {
-							rateMap.put("2", 0);
+							rateMap.put("2", 1);
 						} else {
 							rateMap.put("2", rateMap.get("2") + 1);
 						}
 						break;
 					case 3:
 						if (!rateMap.containsKey("3")) {
-							rateMap.put("3", 0);
+							rateMap.put("3", 1);
 						} else {
 							rateMap.put("3", rateMap.get("3") + 1);
 						}
 						break;
 					case 4:
 						if (!rateMap.containsKey("4")) {
-							rateMap.put("4", 0);
+							rateMap.put("4", 1);
 						} else {
 							rateMap.put("4", rateMap.get("4") + 1);
 						}
 						break;
 					case 5:
 						if (!rateMap.containsKey("5")) {
-							rateMap.put("5", 0);
+							rateMap.put("5", 1);
 						} else {
 							rateMap.put("5", rateMap.get("5") + 1);
 						}
@@ -107,15 +108,18 @@ public class EsearchUtils {
 					default:
 						break;
 					}
-					
-					for (Map.Entry<String, Integer> entry : rateMap.entrySet()) {
-					    item.put(EsearchConstants.JSONTAGS.get("key"), entry.getKey());
-						item.put(EsearchConstants.JSONTAGS.get("doc_count"), entry.getValue());
-						array.put(item);
-					}
 				}
 			}
-			
+			for (int i = 0; i < EsearchConstants.RATING_COUNT; i++) {
+				int docCount = 0;
+				item = new JSONObject();
+				item.put(EsearchConstants.JSONTAGS.get("key"), String.valueOf(i));
+				if(rateMap.containsKey(String.valueOf(i))) {
+					docCount = rateMap.get(String.valueOf(i));
+				}
+				item.put(EsearchConstants.JSONTAGS.get("doc_count"), docCount);
+				array.put(item);
+			}
 			item = new JSONObject();
 			item.put(EsearchConstants.JSONTAGS.get("doc_count_error_upper_bound"), "0");
 			item.put(EsearchConstants.JSONTAGS.get("sum_other_doc_count"), "0");
@@ -148,6 +152,7 @@ public class EsearchUtils {
 		} finally {
 			// transportClient.close();
 		}
+		System.out.println("esData:"+esData);
 		return esData;
 	}
 	
