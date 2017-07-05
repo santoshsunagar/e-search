@@ -37,11 +37,11 @@ public class FeedbackController {
 			EsearchService serviceImpl = new EsearchServiceImpl();
 			response = serviceImpl.getAvailableDocuments(index);
 			esData = EsearchUtils.getAllDocuments(response);
-			jsonObject = EsearchUtils.prepareRatingJson(esData, response);
-			if(null == jsonObject) {
+			if(null == esData || esData.size() == 0) {
 				jsonObject.put("404", "No data Found");
 				return jsonObject.toString();
 			}
+			jsonObject = EsearchUtils.prepareRatingJson(esData, response);
 		} catch (NoNodeAvailableException expObj) {
 			LOGGER.error("Error in FeedbackController getOrder : ", expObj);
 			jsonObject.put("500", "NoNodeAvailableException");
