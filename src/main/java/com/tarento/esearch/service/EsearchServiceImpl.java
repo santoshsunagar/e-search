@@ -71,6 +71,7 @@ public class EsearchServiceImpl implements EsearchService {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
 			transportClient = new PreBuiltTransportClient(clusterSettings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(EsearchConstants.CLUSTER_NODE_HOST), EsearchConstants.CLUSTER_NODE_PORT));
 			DeleteResponse response = transportClient.prepareDelete(index, type, searchId).execute().actionGet();
+			LOGGER.info("Delete Response: "+response);
 		} catch (Exception expObj) {
 			LOGGER.error("Error in removing Document", expObj);
 			expObj.printStackTrace();
@@ -137,36 +138,18 @@ public class EsearchServiceImpl implements EsearchService {
 	public SearchResponse getAvailableDocuments(String index) throws com.tarento.esearch.exception.NoNodeAvailableException {
 		LOGGER.info("Start: getAvailableDocuments service");
 		TransportClient transportClient = null;
-		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
 		SearchRequestBuilder requestBuilder = null;
-		int scrollSize = 1000;
-		int i = 0;
 		try {
 			Settings clusterSettings = Settings.builder().put(EsearchConstants.CLUSTER_NAME, EsearchConstants.CLUSTER_NAME_VALUE).build();
 			transportClient = new PreBuiltTransportClient(clusterSettings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(EsearchConstants.CLUSTER_NODE_HOST), EsearchConstants.CLUSTER_NODE_PORT));
-			/*esData = new ArrayList<Map<String,Object>>();
-			while( response == null || response.getHits().hits().length != 0){
-				response = transportClient.prepareSearch(index)
-	                       .setQuery(QueryBuilders.matchAllQuery())
-	                       .setSize(scrollSize)
-	                       .setFrom(i * scrollSize)
-	                    .execute()
-	                    .actionGet();
-	            //System.out.println("response:"+response);
-	            for(SearchHit hit : response.getHits()){
-	                esData.add(hit.getSource());
-	            }
-	            i++;
-	        }*/
-			
-			//Added
-			esData = new ArrayList<Map<String,Object>>();
 			requestBuilder = transportClient.prepareSearch(index).setQuery(QueryBuilders.matchAllQuery());
 			response = requestBuilder.get();
 		} catch (NoNodeAvailableException expObj) {
+			LOGGER.error("Error in get Available Documents", expObj);
 			throw new com.tarento.esearch.exception.NoNodeAvailableException("NoNodeAvailableException"); 
 		} catch (Exception expObj) {
+			LOGGER.error("Error in get Available Documents", expObj);
 			expObj.printStackTrace();
 		} finally {
             transportClient.close();

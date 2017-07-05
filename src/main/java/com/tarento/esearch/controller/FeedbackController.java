@@ -3,7 +3,6 @@ package com.tarento.esearch.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +29,6 @@ public class FeedbackController {
 		LOGGER.info("Start: FeedbackController getOrder event");
 		JSONObject jsonObject = null;
 		List<Map<String,Object>> esData = null;
-		SearchRequestBuilder requestBuilder = null;
 		SearchResponse response = null;
 		try {
 			jsonObject = new JSONObject();
@@ -51,6 +49,7 @@ public class FeedbackController {
 			LOGGER.error("Error in FeedbackController getOrder : ", expObj);
 			ResponseStatus status = new ResponseStatus(500, "Internal Error");
 			expObj.printStackTrace();
+			return status.toString();
 		} finally {
 			// transportClient.close();
 		}
