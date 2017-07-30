@@ -3,6 +3,7 @@ package com.tarento.esearch.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tarento.esearch.exception.NoNodeAvailableException;
+import com.tarento.esearch.model.ResponseRating;
 import com.tarento.esearch.model.ResponseStatus;
 import com.tarento.esearch.service.EsearchService;
 import com.tarento.esearch.service.EsearchServiceImpl;
@@ -30,6 +32,8 @@ public class FeedbackController {
 		JSONObject jsonObject = null;
 		List<Map<String,Object>> esData = null;
 		SearchResponse response = null;
+		ResponseRating responseRating = new ResponseRating();
+		String responseStatus = null;
 		try {
 			jsonObject = new JSONObject();
 			EsearchService serviceImpl = new EsearchServiceImpl();
@@ -39,7 +43,9 @@ public class FeedbackController {
 				jsonObject.put("404", "No data Found");
 				return jsonObject.toString();
 			}
-			jsonObject = EsearchUtils.prepareRatingJson(esData, response);
+			//jsonObject = EsearchUtils.prepareRatingJson(esData, response); //Using JSONObject
+			responseRating = EsearchUtils.prepareRatingResponse(esData, response);
+			responseStatus = new ObjectMapper().writeValueAsString(responseRating);
 		} catch (NoNodeAvailableException expObj) {
 			LOGGER.error("Error in FeedbackController getOrder : ", expObj);
 			jsonObject.put("500", "NoNodeAvailableException");
@@ -54,7 +60,7 @@ public class FeedbackController {
 			// transportClient.close();
 		}
 		LOGGER.info("End: FeedbackController getOrder event");
-		return jsonObject.toString();
+		return responseStatus;
 	}
 	
 }

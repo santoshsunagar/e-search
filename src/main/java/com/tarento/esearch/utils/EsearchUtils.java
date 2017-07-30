@@ -11,6 +11,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.tarento.esearch.constants.EsearchConstants;
+import com.tarento.esearch.model.Aggregation;
+import com.tarento.esearch.model.AggregationKey;
+import com.tarento.esearch.model.Bucket;
+import com.tarento.esearch.model.Hit;
+import com.tarento.esearch.model.ResponseRating;
+import com.tarento.esearch.model.Shard;
 
 
 public class EsearchUtils {
@@ -134,6 +140,113 @@ public class EsearchUtils {
 			ratingJson.put(EsearchConstants.JSONTAGS.get("aggregations"), item);
 			ratingJson.put(EsearchConstants.JSONTAGS.get("status"), EsearchConstants.STATUS_200);
 			
+		} catch (Exception expObj) {
+			expObj.printStackTrace();
+		}
+		return ratingJson;
+	}
+	
+	public static ResponseRating prepareRatingResponse(List<Map<String,Object>> esData, SearchResponse response) throws Exception {
+		ResponseRating ratingJson = new ResponseRating();
+		try {
+			Shard shard = new Shard();
+			Hit hit = new Hit();
+			Aggregation aggregation = new Aggregation();
+			AggregationKey aggregationKey = new AggregationKey();
+			List<Bucket> buckets = new ArrayList<Bucket>();
+			Bucket bucket = new Bucket();
+			
+			//Prepare response
+			ratingJson.setTook(response.getTook().getMillis());
+			ratingJson.setTimedOut(false);
+			
+			//Prepare shards
+			shard.setTotal(response.getSuccessfulShards() + response.getFailedShards());
+			shard.setSuccessful(response.getSuccessfulShards());
+			shard.setFailed(response.getFailedShards());
+			ratingJson.setShards(shard);
+			
+			//Prepare hits
+			hit.setTotal(esData.size());
+			hit.setMaxScore(response.getHits().maxScore());
+			hit.setHits(response.getHits().totalHits);
+			ratingJson.setHits(hit);
+			
+			//Prepare aggregation
+			
+			aggregationKey.setDocCountErrorUpperBound("0");
+			aggregationKey.setSumOtherDocCount("0");
+			
+			Map<String, Integer> rateMap = new HashMap<String, Integer>();
+			if(null != esData && esData.size() > 0) {
+				for (Map<String, Object> map : esData) {
+					int rate = (int) map.get(EsearchConstants.JSONTAGS.get("rate"));
+					
+					switch (rate) {
+					case 0:
+						if (!rateMap.containsKey("0")) {
+							rateMap.put("0", 1);
+						} else {
+							rateMap.put("0", rateMap.get("0") + 1);
+						}
+						break;
+					case 1:
+						if (!rateMap.containsKey("1")) {
+							rateMap.put("1", 1);
+						} else {
+							rateMap.put("1", rateMap.get("1") + 1);
+						}
+						break;
+					case 2:
+						if (!rateMap.containsKey("2")) {
+							rateMap.put("2", 1);
+						} else {
+							rateMap.put("2", rateMap.get("2") + 1);
+						}
+						break;
+					case 3:
+						if (!rateMap.containsKey("3")) {
+							rateMap.put("3", 1);
+						} else {
+							rateMap.put("3", rateMap.get("3") + 1);
+						}
+						break;
+					case 4:
+						if (!rateMap.containsKey("4")) {
+							rateMap.put("4", 1);
+						} else {
+							rateMap.put("4", rateMap.get("4") + 1);
+						}
+						break;
+					case 5:
+						if (!rateMap.containsKey("5")) {
+							rateMap.put("5", 1);
+						} else {
+							rateMap.put("5", rateMap.get("5") + 1);
+						}
+						break;
+
+					default:
+						break;
+					}
+				}
+			}
+			for (int i = 0; i < EsearchConstants.RATING_COUNT; i++) {
+				int docCount = 0;
+				Integer key = i;
+				bucket = new Bucket();
+				bucket.setKey(key);
+				if(rateMap.containsKey(String.valueOf(i))) {
+					docCount = rateMap.get(String.valueOf(i));
+				}
+				bucket.setDoc_count(docCount);
+				buckets.add(bucket);
+			}
+			aggregationKey.setBuckets(buckets);
+			aggregation.setAggregationKey(aggregationKey);
+			ratingJson.setAggregations(aggregation);
+			
+			ratingJson.setStatus(EsearchConstants.STATUS_200);
 		} catch (Exception expObj) {
 			expObj.printStackTrace();
 		}
